@@ -1,65 +1,83 @@
 from cmath import pi
+from curses import noecho
 from operator import truediv
 import os
+from datetime import datetime
+
 
 
 invalido = False
 valido = True
 
+tarjIngreso = []
+
 class CajeroAutomatico:
    
 
     def __init__(self):
-        self.numSerie = None
+        self.tarjeta = None
+        self.monto = 0
+
+    def atributos(self):
+        self.numSerie = 123231
         self.marca = None
         self.tipo = None
         self.color = None
         self.ubicacion = None
-        self.tarjetas = []
-        self.monto = 0
 
     def depositar(self):
-        numTarjeta = int(input('Ingrese el numero de su tarjeta: \n'))
-        self.tarjetas.append(numTarjeta)
-        print(self.tarjetas)
+        print(self.tarjeta)
         dep = int(input('Ingrese su monto a depositar: \n'))
         print(f'Usted ha depositado: {dep}')
         print(f'Su nuevo monto es de {self.monto + dep}\n')
         self.monto += dep
+        self.addInventario('Deposito \n')
+    
+
 	    
     def Retirar(self):
-        verTarjeta = int(input('Ingrese su tarjeta: \n'))
-        i = 0
-        while i < len(self.tarjetas):
-            if verTarjeta != self.tarjetas[i]:
-                print('Numero de tarjeta incorrecto \n')
-            else:
-                ret = int(input('¿Que cantidad desea retirar?: '))
-                print(f'Su monto actual es, {self.monto}')
-                if self.monto >= ret:
-                    print(f'Usted a retirado: {ret} , su nuevo monto es {self.monto - ret} \n')
-                    self.monto-=ret
-                else:
-                    print('Monto invalido \n')
-            i += 1
-   
+        print(self.tarjeta)
+        
+        ret = int(input('¿Que cantidad desea retirar?: '))
+        print(f'Su monto actual es, {self.monto}')
+        if self.monto >= ret:
+            print(f'Usted a retirado: {ret} , su nuevo monto es {self.monto - ret} \n')
+            self.monto-=ret
+        else:
+            print('Monto invalido \n')
+        self.addInventario('Retiro \n')
+
+    def crearInventario(self, tarjeta, nombre, apellido):
+        with open('inventario.txt', 'w') as inv:
+            w = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + '' + str(tarjeta) + '' + nombre + '' + apellido + ': ')
+
+    def addInventario(self, accion):
+        with open('inventario.txt', 'a') as inv:
+            a = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + '' + accion + '\n')
            
     def getSaldo(self):
         print(f'Su saldo es de {self.monto}')
+        self.addInventario('Ver Saldo \n')
 
 class Cliente(CajeroAutomatico):
+
+    
     nombre = 'Kevin'
     apellido = 'Barrantes'
     pin = 1234
 
     def ingreso(self):
         print('Bienvenido al cajero automatico \n')
-        ingPass = int(input('Ingrese su contraseña\n'))
+
+        tarjPass = int(input('Ingrese su numero de tarjeta: '))
+        ingPass = int(input('Ingrese su contraseña: '))
 
         #Validacion ingreso
         if ingPass != self.pin:
             return False
-        else: 
+        else:
+            self.tarjeta = tarjPass
+            self.crearInventario(self.tarjeta, self.nombre, self.apellido)
             return True
         
     def menu(self):
