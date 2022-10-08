@@ -1,75 +1,87 @@
+"""Imports"""
 from ast import Return
 from cmath import pi
 from operator import truediv
 import os
 from datetime import datetime
 
-
-
+"""Variables booleanas"""
 invalido = False
 valido = True
 
-tarjIngreso = []
-
-class Cliente:
+"""Clase referente a las operaciones del cajero automatico y manejo de archivos"""
+class CajeroAutomatico:
    
+    """Metodos de atribucion"""
 
     def __init__(self):
         self.tarjeta = None
         self.monto = 0
-        self.depos = 0
-        self.retir = 0
+        self.deposito = 0
+        self.retiro = 0
+        self.montoCajero = 0
 
-    def atributos(self):
-        self.numSerie = 123231
-        self.marca = None
-        self.tipo = None
-        self.color = None
-        self.ubicacion = None
+    """Metodos de calculo"""
 
     def depositar(self):
-        print(self.tarjeta)
         dep = int(input('Ingrese su monto a depositar: \n'))
-        self.depos = dep
+        self.deposito = dep
+        self.montoCajero = self.montoCajero + dep
         print(f'*******Usted ha depositado: {dep}********** \n')
         print(f'*******Su nuevo monto es de {self.monto + dep}********\n\n')
         self.monto += dep
-        self.addInventario('Deposito \n', self.depos)
-    
-
-	    
+        self.addInvCliente('Deposito \n', self.deposito)
+        self.crearInvCajero('121212', 'Full', 'LENOVO', 'Azul', 'Costado Oeste de Metrocentro')
+        self.addInvCajero(self.montoCajero)
+     
     def Retirar(self):
-        print(self.tarjeta)
-        
         ret = int(input('¿Que cantidad desea retirar?: '))
-        self.retir = ret
+        self.retiro = ret
+        self.montoCajero = self.montoCajero - ret
         print(f'Su monto actual es, {self.monto}')
         if self.monto >= ret:
             print(f'********Usted a retirado: {ret} , su nuevo monto es {self.monto - ret}********* \n')
             self.monto-=ret
         else:
             print('Monto invalido \n')
-        self.addInventario('Retiro \n', self.retir)
+        self.addInvCliente('Retiro \n', self.retiro)
+        self.crearInvCajero('121212', 'Full', 'LENOVO', 'Azul', 'Costado Oeste de Metrocentro')
+        self.addInvCajero(self.montoCajero)
 
-    def crearInventario(self, tarjeta, nombre, apellido):
-        with open('inventario.txt', 'a+') as inv:
-            w = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + str(tarjeta) + ' ' + nombre + ' ' + apellido + ': \n')
-
-    def addInventario(self, accion, aMonto):
-        with open('inventario.txt', 'a+') as inv:
-            a = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + accion + ' ' + str(aMonto) + '\n')
-           
     def getSaldo(self):
         print(f'********Su saldo es de {self.monto} ********\n')
-        self.addInventario('Ver Saldo \n', self.monto)
+        self.addInvCliente('Ver Saldo \n', self.monto)
 
-class CajeroAutomatico(Cliente):
 
+    """Metodos manejo de archivos"""
+
+    def crearInvCliente(self, tarjeta, nombre, apellido):
+        with open('clientes.txt', 'a+') as inv:
+            w = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + str(tarjeta) + ' ' + nombre + ' ' + apellido + ': \n')
+
+    def addInvCliente(self, accion, aMonto):
+        with open('clientes.txt', 'a+') as inv:
+            a = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + accion + ' ' + str(aMonto) + '\n')
     
+    def crearInvCajero(self, serie, tipo, marca, color, ubicacion):
+        with open('cajeros.txt', 'a+') as inv:
+            w = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + serie + ' ' + tipo + ' ' + marca + ' ' + color + ' ' + ubicacion +': \n')
+
+    def addInvCajero(self, montoTotal):
+        with open('cajeros.txt', 'a+') as inv:
+            a = inv.write(str(datetime.today().strftime('%Y-%m-%d')) + ' ' + str(montoTotal) + '\n')
+           
+    
+
+"""Clase de cliente referente a la interfaz del cliente y las entradas del mismo"""
+class Cliente(CajeroAutomatico):
+
+    """Variables usuario"""
     nombre = None
     apellido = None
     pin = None
 
+    """Metodo de registro de usuario"""
     def registro(self):
         print('\n Registro')
 
@@ -84,20 +96,13 @@ class CajeroAutomatico(Cliente):
             self.nombre = nomReg
             self.apellido = apellReg
             self.pin = passReg
-            self.crearInventario(self.tarjeta, self.nombre, self.apellido)
+            self.crearInvCliente(self.tarjeta, self.nombre, self.apellido)
 
             return True
         else:
             return False
 
-        #Validacion ingreso
-        # if ingPass != self.pin:
-        #     return False
-        # else:
-        #     self.tarjeta = tarjPass
-        #     
-        #     return True
-        
+    """Metodo de interfaz de usuario(Menu)"""
     def menu(self):
        
             ing = None
@@ -130,7 +135,8 @@ class CajeroAutomatico(Cliente):
                 if ing != True:
                     print('*******No esta registrado, intente de nuevo******* \n')
 
-d = CajeroAutomatico().menu()
+"""Llamada al metodo interfaz"""
+d = Cliente().menu()
 
 
 
